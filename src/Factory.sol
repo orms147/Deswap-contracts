@@ -10,7 +10,7 @@ contract Factory {
         address indexed token0,
         address indexed token1,
         address pair,
-        uint
+        uint256 totalPairs
     );
 
     function createPair(
@@ -24,10 +24,13 @@ contract Factory {
             : (tokenB, tokenA);
 
         require(token0 != address(0), "Factory: ZERO_ADDRESS");
-        require(token1 != address(0), "Factory: ZERO_ADDRESS");
         require(getPair[token0][token1] == address(0), "Factory: PAIR_EXISTS");
 
-        pair = address(new Pair("Liquidity Pool", "LP", token0, token1));
+        // create2
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+        pair = address(new Pair{salt: salt}());
+
+        Pair(pair).initialize(token0, token1);
 
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair;

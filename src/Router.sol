@@ -2,9 +2,13 @@
 pragma solidity ^0.8.18;
 
 import "./Factory.sol";
+import "./Pair.sol";
+import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {SafeMath} from "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 
 contract Router {
-    Factory public factory;
+    using SafeMath for uint256;
+    Factory public immutable factory;
 
     constructor(address _factory) {
         factory = Factory(_factory);
