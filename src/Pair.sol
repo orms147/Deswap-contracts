@@ -26,12 +26,6 @@ contract Pair is ERC20 {
         uint256 amount1Out,
         address indexed to
     );
-    event Burn(
-        address indexed sender,
-        uint256 amount0,
-        uint256 amount1,
-        address indexed to
-    );
     event Sync(uint112 reserve0, uint112 reserve1);
 
     uint private _unlocked = 1;

@@ -15,27 +15,35 @@ contract Router {
         factory = Factory(_factory);
     }
 
+    modifier ensure(uint256 deadline) {
+        require(deadline >= block.timestamp, "Router: EXPIRED");
+        _;
+    }
+
     function addLiquidity(
         address tokenA,
         address tokenB,
         uint256 amountA,
-        uint256 amountB
-    ) external {
+        uint256 amountB,
+        address to,
+        uint256 deadline
+    ) external ensure(deadline) {
         address pairAddress = factory.getPair(tokenA, tokenB);
         if (pairAddress == address(0)) {
             pairAddress = factory.createPair(tokenA, tokenB);
         }
         IERC20(tokenA).transferFrom(msg.sender, pairAddress, amountA);
         IERC20(tokenB).transferFrom(msg.sender, pairAddress, amountB);
-        Pair(pairAddress).mint(msg.sender);
+        Pair(pairAddress).mint(to);
     }
 
     function swapExactTokensForTokens(
         uint256 amountIn,
         uint256 amountOutMin,
         address[] calldata path,
-        address to
-    ) external returns (uint256[] memory amounts) {
+        address to,
+        uint256 deadline
+    ) external ensure(deadline) returns (uint256[] memory amounts) {
         amounts = getAmountsOut(amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
@@ -85,11 +93,11 @@ contract Router {
         return numerator / denominator;
     }
 
-    function _getPair(
+    function getPair(
         address tokenA,
         address tokenB
-    ) internal view returns (address) {
-        return factory.getPair(tokenA, tokenB);
+    ) external view returns (address pairAddress) {
+        pairAddress = factory.getPair(tokenA, tokenB);
     }
 
     function getAmountsOut(
